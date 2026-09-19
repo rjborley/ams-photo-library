@@ -238,7 +238,7 @@ function renderGallery(){
     const title=[p.product,p.company].filter(Boolean).join(' · ')||p.uniqueFilename||'Untitled';
     const meta=[p.consignment,p.location,fmtDate(p.addedAt)].filter(Boolean).join(' · ');
     const isSel=selectedIds.has(p.id);
-    return'<div class="photo-card'+(selectMode?' selectable':'')+(isSel?' selected':'')+'" onclick="'+(selectMode?'toggleSel("'+p.id+'")':'openPhoto("'+p.id+'")')+'">'
+    return'<div class="photo-card'+(selectMode?' selectable':'')+(isSel?' selected':'')+'" data-id="'+esc(p.id)+'" data-action="'+(selectMode?'sel':'open')+'">'
       +'<div class="photo-thumb-wrap">'+(p.imgbbUrl?'<img class="photo-thumb" src="'+esc(p.imgbbUrl)+'" loading="lazy">':'<div class="photo-thumb-placeholder">🖼</div>')+(selectMode?'<div class="card-check">'+(isSel?'✓':'')+'</div>':'')+'</div>'
       +'<div class="photo-info"><span class="photo-cat '+cc+'">'+esc(p.category||'Other')+'</span><div class="photo-title">'+esc(title)+'</div>'+(p.uniqueFilename?'<div class="photo-fname">'+esc(p.uniqueFilename)+'</div>':'')+'<div class="photo-meta">'+esc(meta)+'</div></div></div>';
   }).join('')+'</div>';
@@ -346,6 +346,13 @@ el('backupBtn').onclick=()=>{
 el('searchInput').oninput=renderGallery;
 el('filterCategory').onchange=renderGallery;
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModalBtn();});
+document.addEventListener('click',e=>{
+  const card=e.target.closest('[data-id]');
+  if(!card)return;
+  const id=card.dataset.id,action=card.dataset.action;
+  if(action==='sel')toggleSel(id);
+  else openPhoto(id);
+});
 window.openPhoto=openPhoto;window.closeModalBtn=closeModalBtn;window.toggleSel=toggleSel;window.removeFile=removeFile;
 
 db.collection('photos').orderBy('addedAt','desc').onSnapshot(snap=>{
