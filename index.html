@@ -53,8 +53,10 @@ input[type=file]{display:none}
 .filter-select{padding:7px 10px;border:1px solid var(--border);border-radius:var(--r);background:var(--surface);color:var(--text);font-size:13px;font-family:inherit;cursor:pointer;outline:none}
 .count-bar{display:flex;align-items:center;margin-bottom:14px}
 .count-text{color:var(--text-s);font-size:13px}
-.select-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--accent-l);border:1px solid var(--accent);border-radius:var(--r);margin-bottom:14px;font-size:13px;color:var(--accent);flex-wrap:wrap}
-.select-bar-count{font-weight:500;flex:1}
+.select-bar{display:flex;flex-direction:column;gap:8px;padding:10px 14px;background:var(--accent-l);border:1px solid var(--accent);border-radius:var(--r);margin-bottom:14px;font-size:13px;color:var(--accent)}
+.select-bar-top{display:flex;align-items:center;justify-content:space-between}
+.select-bar-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.select-bar-count{font-weight:500}
 .btn-sel-active{background:var(--accent-l);color:var(--accent);border:1px solid var(--accent)}
 .photo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
 @media(max-width:480px){.photo-grid{grid-template-columns:repeat(2,1fr);gap:9px}}
@@ -143,11 +145,15 @@ input[type=file]{display:none}
     <select class="filter-select" id="filterCategory"><option value="">All categories</option><option value="QC">Quality Control</option><option value="Sales">Sales</option><option value="Retail">Retail Store</option><option value="Visit">Visit / Trip / Show</option><option value="Other">Other</option></select>
   </div>
   <div class="select-bar" id="selectBar" style="display:none">
-    <span class="select-bar-count" id="selectCount">Tap photos to select</span>
-    <button class="btn btn-secondary btn-sm" id="selectAllBtn">Select all</button>
-    <button class="btn btn-secondary btn-sm" id="selectNoneBtn">Clear</button>
-    <button class="btn btn-danger btn-sm" id="deleteSelectedBtn" disabled>🗑 Delete selected</button>
-    <button class="btn btn-ghost btn-sm" id="cancelSelectBtn">Cancel</button>
+    <div class="select-bar-top">
+      <span class="select-bar-count" id="selectCount">Tap photos to select</span>
+      <button class="btn btn-ghost btn-sm" id="cancelSelectBtn">Cancel</button>
+    </div>
+    <div class="select-bar-actions">
+      <button class="btn btn-secondary btn-sm" id="selectAllBtn">Select all</button>
+      <button class="btn btn-secondary btn-sm" id="selectNoneBtn">Clear</button>
+      <button class="btn btn-danger btn-sm" id="deleteSelectedBtn" disabled>🗑 Delete selected</button>
+    </div>
   </div>
   <div class="count-bar"><span class="count-text" id="countText"></span></div>
   <div id="galleryState"><div class="loading-state"><div class="spinner"></div> Loading library…</div></div>
