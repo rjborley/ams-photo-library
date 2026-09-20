@@ -152,6 +152,7 @@ input[type=file]{display:none}
     <div class="select-bar-actions">
       <button class="btn btn-secondary btn-sm" id="selectAllBtn">Select all</button>
       <button class="btn btn-secondary btn-sm" id="selectNoneBtn">Clear</button>
+      <button class="btn btn-secondary btn-sm" id="downloadSelectedBtn" disabled>⬇ Download selected</button>
       <button class="btn btn-danger btn-sm" id="deleteSelectedBtn" disabled>🗑 Delete selected</button>
     </div>
   </div>
@@ -326,7 +327,7 @@ function resetUpload(){
 function toggleSel(id){selectedIds.has(id)?selectedIds.delete(id):selectedIds.add(id);updateSB();renderGallery();}
 function enterSel(){selectMode=true;selectedIds.clear();el('selectModeBtn').classList.add('btn-sel-active');el('selectModeBtn').textContent='Selecting…';el('selectBar').style.display='flex';el('uploadToggleBtn').style.display='none';updateSB();renderGallery();}
 function exitSel(){selectMode=false;selectedIds.clear();el('selectModeBtn').classList.remove('btn-sel-active');el('selectModeBtn').textContent='Select';el('selectBar').style.display='none';el('uploadToggleBtn').style.display='';renderGallery();}
-function updateSB(){const n=selectedIds.size;el('selectCount').textContent=n===0?'Tap photos to select':n+' photo'+(n!==1?'s':'')+' selected';el('deleteSelectedBtn').disabled=n===0;}
+function updateSB(){const n=selectedIds.size;el('selectCount').textContent=n===0?'Tap photos to select':n+' photo'+(n!==1?'s':'')+' selected';el('deleteSelectedBtn').disabled=n===0;el('downloadSelectedBtn').disabled=n===0;}
 async function deleteSel(){
   const n=selectedIds.size;if(!n)return;
   if(!confirm('Permanently delete '+n+' photo'+(n!==1?'s':'')+'?'))return;
@@ -334,6 +335,26 @@ async function deleteSel(){
   let done=0;for(const id of[...selectedIds]){try{await db.collection('photos').doc(id).delete();done++;}catch(e){console.error(e);}}
   toast(done+' photo'+(done!==1?'s':'')+' deleted');exitSel();
 }
+async function downloadSelected(){
+  const n=selectedIds.size;if(!n)return;
+  const selected=photos.filter(p=>selectedIds.has(p.id));
+  toast('Downloading '+n+' photo'+(n!==1?'s':'')+'…');
+  for(const p of selected){
+    if(!p.imgbbUrl)continue;
+    try{
+      const res=await fetch(p.imgbbUrl);
+      const blob=await res.blob();
+      const a=document.createElement('a');
+      a.href=URL.createObjectURL(blob);
+      a.download=p.uniqueFilename||p.originalFilename||'image.jpg';
+      a.click();
+      URL.revokeObjectURL(a.href);
+      await new Promise(r=>setTimeout(r,400));
+    }catch(e){toast('Failed to download '+p.uniqueFilename,'error');}
+  }
+  toast('Download complete');
+}
+el('downloadSelectedBtn').onclick=downloadSelected;
 el('selectModeBtn').onclick=()=>selectMode?exitSel():enterSel();
 el('cancelSelectBtn').onclick=exitSel;
 el('selectAllBtn').onclick=()=>{const q=(el('searchInput').value||'').toLowerCase(),cat=el('filterCategory').value;photos.filter(p=>(!cat||p.category===cat)&&(!q||[p.product,p.company,p.contact,p.consignment,p.location,p.description,p.category,p.uniqueFilename,p.originalFilename].some(v=>v&&v.toLowerCase().includes(q)))).forEach(p=>selectedIds.add(p.id));updateSB();renderGallery();};
